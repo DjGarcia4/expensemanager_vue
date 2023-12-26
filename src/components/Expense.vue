@@ -7,6 +7,11 @@
     <v-card class="rounded-lg text-left pa-5 mt-5 elevation-7">
       <v-row>
         <v-col cols="12" md="6">
+          <p
+            class="text-uppercase text-grey-darken-3 font-weight-regular text-h9"
+          >
+            {{ exp.expenseCategory }}
+          </p>
           <h1>{{ exp.expenseName }}</h1>
           <p class="font-weight-bold">
             Date:

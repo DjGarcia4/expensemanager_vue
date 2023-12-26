@@ -63,18 +63,49 @@
                         class="font-weight-bold text-h6"
                         >Categories</label
                       >
-                      <select
-                        class="input-container font-weight-bold"
-                        v-model="expense.expenseCategory"
+                      <v-row>
+                        <v-col cols="9">
+                          <select
+                            class="input-container font-weight-bold"
+                            v-model="expense.expenseCategory"
+                          >
+                            <option
+                              v-for="category in categories"
+                              :key="category.value"
+                              :value="category.value"
+                            >
+                              {{ category.label }}
+                            </option>
+                          </select>
+                        </v-col>
+                        <v-col cols="3">
+                          <v-btn
+                            @click="otherCategory"
+                            class="bg-transparent elevation-0 pa-2 h-100"
+                            ><lord-icon
+                              src="https://cdn.lordicon.com/zrkkrrpl.json"
+                              trigger="click"
+                              stroke="bold"
+                              colors="primary:#e88c30,secondary:#e88c30"
+                              style="width: 50px; height: 50px"
+                            >
+                            </lord-icon
+                          ></v-btn>
+                        </v-col>
+                      </v-row>
+                    </div>
+                    <div class="mt-3" v-if="addCategory">
+                      <label for="newCategory" class="font-weight-bold text-h6"
+                        >New Category</label
                       >
-                        <option
-                          v-for="category in categories"
-                          :key="category.value"
-                          :value="category.value"
-                        >
-                          {{ category.label }}
-                        </option>
-                      </select>
+                      <input
+                        v-model="newCategory"
+                        id="newCategory"
+                        type="text"
+                        placeholder="Example: 😝 Leisure"
+                        min="0"
+                        class="input-container w-100 font-weight-bold"
+                      />
                     </div>
                   </v-col>
                   <v-col cols="6" md="6" class="pa-1">
@@ -257,6 +288,8 @@ const budget = ref("");
 const available = ref(0);
 const budgetDefined = ref(false);
 const modal = ref(false);
+const addCategory = ref(false);
+const newCategory = ref("");
 const snackbar = reactive({
   show: false,
   text: "",
@@ -278,13 +311,13 @@ const expenses = ref([]);
 
 const categories = [
   { value: "", label: "-- Select --" },
-  { value: "savings", label: "Savings" },
-  { value: "food", label: "Food" },
-  { value: "home", label: "Home" },
-  { value: "expenses", label: "Various Expenses" },
-  { value: "leisure", label: "Leisure" },
-  { value: "health", label: "Health" },
-  { value: "subscriptions", label: "Subscriptions" },
+  { value: "💰 savings", label: "💰 Savings" },
+  { value: "🍽️ food", label: "🍽️ Food" },
+  { value: "🏡 home", label: "🏡 Home" },
+  { value: "💵 expenses", label: "💵 Various Expenses" },
+  { value: "😝 leisure", label: "😝 Leisure" },
+  { value: "🏥 health", label: "🏥 Health" },
+  { value: "👾 subscriptions", label: "👾 Subscriptions" },
 ];
 
 const defineBudget = () => {
@@ -309,6 +342,14 @@ const addExpense = () => {
   modal.value = !modal.value;
 };
 const handleExpense = () => {
+  if (newCategory.value !== "") {
+    expense.expenseCategory = newCategory.value;
+    //agregamos la nueva categoria a las ya existentes, tomamos una copia del arreglo anterior y agregamos el nuevo elemento
+    categories.push({
+      label: newCategory.value,
+      value: newCategory.value,
+    });
+  }
   if (Object.values(expense).includes("")) {
     snackbar.show = true;
     snackbar.text = "Please fill all fields.";
@@ -340,6 +381,13 @@ const resetExpense = () => {
     id: null,
     date: Date.now(),
   });
+  addCategory.value = false;
+  newCategory.value = "";
+};
+
+const otherCategory = () => {
+  expense.expenseCategory = "";
+  addCategory.value = true;
 };
 </script>
 
