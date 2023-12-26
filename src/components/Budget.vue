@@ -1,6 +1,6 @@
 <template>
-  <div class="budget-container">
-    <v-container class="bg-white rounded-xl elevation-14 pa-12">
+  <div>
+    <v-container class="bg-white rounded-xl elevation-14 pa-8 pa-md-12">
       <form @submit.prevent="handleSubmit">
         <v-row class="d-flex justify-center">
           <v-col cols="12">
