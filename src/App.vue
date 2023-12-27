@@ -26,108 +26,18 @@
           </div>
           <v-row>
             <v-col cols="12">
-              <form @submit.prevent="handleExpense">
-                <v-row class="d-flex justify-center">
-                  <v-col cols="12">
-                    <div class="mt-3">
-                      <label for="expenseName" class="font-weight-bold text-h6"
-                        >Expense Name</label
-                      >
-                      <input
-                        v-model="expense.expenseName"
-                        id="expenseName"
-                        type="text"
-                        placeholder="Example: Social Life"
-                        min="0"
-                        class="input-container w-100 font-weight-bold"
-                      />
-                    </div>
-                    <div class="mt-3">
-                      <label
-                        for="expenseAmount"
-                        class="font-weight-bold text-h6"
-                        >Amount</label
-                      >
-                      <input
-                        v-model="expense.expenseAmount"
-                        id="expenseAmount"
-                        type="number"
-                        placeholder="Example: 100"
-                        min="0"
-                        class="input-container w-100 font-weight-bold"
-                      />
-                    </div>
-                    <div class="mt-3">
-                      <label
-                        for="expenseCategorie"
-                        class="font-weight-bold text-h6"
-                        >Categories</label
-                      >
-                      <v-row>
-                        <v-col cols="9">
-                          <select
-                            class="input-container font-weight-bold"
-                            v-model="expense.expenseCategory"
-                          >
-                            <option
-                              v-for="category in categories"
-                              :key="category.value"
-                              :value="category.value"
-                            >
-                              {{ category.label }}
-                            </option>
-                          </select>
-                        </v-col>
-                        <v-col cols="3">
-                          <v-btn
-                            @click="otherCategory"
-                            class="bg-transparent elevation-0 pa-2 h-100"
-                            ><lord-icon
-                              src="https://cdn.lordicon.com/zrkkrrpl.json"
-                              trigger="click"
-                              stroke="bold"
-                              colors="primary:#e88c30,secondary:#e88c30"
-                              style="width: 50px; height: 50px"
-                            >
-                            </lord-icon
-                          ></v-btn>
-                        </v-col>
-                      </v-row>
-                    </div>
-                    <div class="mt-3" v-if="addCategory">
-                      <label for="newCategory" class="font-weight-bold text-h6"
-                        >New Category</label
-                      >
-                      <input
-                        v-model="newCategory"
-                        id="newCategory"
-                        type="text"
-                        placeholder="Example: 😝 Leisure"
-                        min="0"
-                        class="input-container w-100 font-weight-bold"
-                      />
-                    </div>
-                  </v-col>
-                  <v-col cols="6" md="6" class="pa-1">
-                    <v-btn
-                      block
-                      class="bg-orange-accent-3 text-white font-weight-bold text-h6 text-capitalize"
-                      height="40"
-                      type="submit"
-                      >Add Expense</v-btn
-                    >
-                  </v-col>
-                  <v-col cols="6" md="6" class="pa-1">
-                    <v-btn
-                      block
-                      class="bg-red-accent-3 text-white font-weight-bold text-h6 text-capitalize"
-                      height="40"
-                      @click="modal = false"
-                      >Cancel</v-btn
-                    >
-                  </v-col>
-                </v-row>
-              </form>
+              <FormExpense
+                :categories="categories"
+                :addCategory="addCategory"
+                v-model:expenseName="expense.expenseName"
+                v-model:expenseDescription="expense.expenseDescription"
+                v-model:expenseAmount="expense.expenseAmount"
+                v-model:expenseCategory="expense.expenseCategory"
+                v-model:newCategory="newCategory"
+                @handle-expense="handleExpense"
+                @other-category="otherCategory"
+                @add-expense="addExpense"
+              />
             </v-col>
           </v-row>
         </v-card>
@@ -188,7 +98,11 @@
               leave-active-class="animate__animated animate__backOutRight"
             >
               <div v-if="expenses.length > 0">
-                <Expense v-for="exp in expenses" :exp="exp" />
+                <Expense
+                  v-for="exp in expenses"
+                  :exp="exp"
+                  @show-expense="showExpense"
+                />
               </div>
             </Transition>
           </v-container>
@@ -267,6 +181,115 @@
         </v-menu>
       </div>
     </Transition>
+    <div>
+      <v-row justify="center">
+        <v-dialog v-model="dialogShowExpense" width="auto">
+          <v-card class="rounded-xl pa-6" min-width="300" height="450">
+            <v-row>
+              <v-col cols="12" class="d-flex justify-end pa-0">
+                <v-btn
+                  @click="dialogShowExpense = false"
+                  class="bg-transparent elevation-0 text-grey-lighten-1"
+                  width="50"
+                  >Close
+                </v-btn>
+              </v-col>
+            </v-row>
+
+            <v-card-title class="text-center font-weight-black text-h3">
+              {{ expenseToShow[0].expenseName }}</v-card-title
+            >
+            <h1
+              class="mt-5 text-grey-darken-2 text-center font-weight-medium text-h5 text-uppercase"
+            >
+              {{ expenseToShow[0].expenseCategory }}
+            </h1>
+            <div class="my-7">
+              <h1
+                class="text-red-accent-3 text-center text-h3 font-weight-bold"
+              >
+                {{ formatMoney(expenseToShow[0].expenseAmount) }}
+              </h1>
+            </div>
+            <v-card-text class="text-h6"
+              >{{ expenseToShow[0].expenseDescription }}
+            </v-card-text>
+            <p class="text-right font-weight-bold">
+              {{ formatFecha(expenseToShow[0].date) }}
+            </p>
+            <v-card-actions>
+              <v-row>
+                <v-col cols="6" md="6" class="pa-1">
+                  <v-btn
+                    block
+                    class="bg-orange-accent-3 text-white font-weight-bold text-h6 text-capitalize"
+                    height="40"
+                    type="submit"
+                  >
+                    <lord-icon
+                      src="https://cdn.lordicon.com/wuvorxbv.json"
+                      trigger="click"
+                      colors="primary:#ffffff,secondary:#ffffff"
+                      style="width: 30px; height: 30px"
+                    >
+                    </lord-icon
+                  ></v-btn>
+                </v-col>
+                <v-col cols="6" md="6" class="pa-1">
+                  <v-btn
+                    @click="dialogDeleteExpense = true"
+                    block
+                    class="bg-red-accent-3 text-white font-weight-bold text-h6 text-capitalize"
+                    height="40"
+                    ><lord-icon
+                      src="https://cdn.lordicon.com/drxwpfop.json"
+                      trigger="click"
+                      stroke="bold"
+                      colors="primary:#ffffff,secondary:#ffffff"
+                      style="width: 30px; height: 30px"
+                    >
+                    </lord-icon
+                  ></v-btn>
+                </v-col>
+              </v-row>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <!-- <v-dialog v-model="dialogDeleteExpense" width="auto">
+          <v-card>
+            <v-card-title> Dialog 2 </v-card-title>
+            <v-card-text>
+              <v-btn color="primary" @click="dialog3 = !dialog3">
+                Delete Expense
+              </v-btn>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                variant="text"
+                @click="dialogDeleteExpense = false"
+              >
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog> -->
+
+        <!-- <v-dialog v-model="dialog3" width="auto">
+          <v-card>
+            <v-card-title>
+              <span>Dialog 3</span>
+            </v-card-title>
+            <v-card-actions>
+              <v-btn color="primary" variant="text" @click="dialog3 = false">
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog> -->
+      </v-row>
+    </div>
   </div>
 </template>
 
@@ -277,7 +300,9 @@ import ControlBudget from "./components/ControlBudget.vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import Expense from "./components/Expense.vue";
-
+import FormExpense from "./components/FormExpense.vue";
+import { uid } from "uid";
+import { formatMoney, formatFecha } from "./helpers";
 const $toast = useToast();
 
 import lottie from "lottie-web";
@@ -289,6 +314,10 @@ const available = ref(0);
 const budgetDefined = ref(false);
 const modal = ref(false);
 const addCategory = ref(false);
+const dialogShowExpense = ref(false);
+const expenseToShow = ref({});
+const dialogDeleteExpense = ref(false);
+const dialog3 = ref(false);
 const newCategory = ref("");
 const snackbar = reactive({
   show: false,
@@ -302,6 +331,7 @@ const totalExpense = computed(() => {
 });
 const expense = reactive({
   expenseName: "",
+  expenseDescription: "",
   expenseAmount: "",
   expenseCategory: "",
   id: null,
@@ -344,12 +374,12 @@ const addExpense = () => {
 const handleExpense = () => {
   if (newCategory.value !== "") {
     expense.expenseCategory = newCategory.value;
-    //agregamos la nueva categoria a las ya existentes, tomamos una copia del arreglo anterior y agregamos el nuevo elemento
     categories.push({
       label: newCategory.value,
       value: newCategory.value,
     });
   }
+
   if (Object.values(expense).includes("")) {
     snackbar.show = true;
     snackbar.text = "Please fill all fields.";
@@ -358,7 +388,8 @@ const handleExpense = () => {
     }, 3000);
     return;
   }
-  expenses.value.push({ ...expense });
+  expense.id = uid();
+  expenses.value.unshift({ ...expense });
   modal.value = false;
   $toast.success("Expense added succcessfully! ", {
     position: "top",
@@ -366,6 +397,7 @@ const handleExpense = () => {
   Object.assign(expense, {
     expenseName: "",
     expenseAmount: "",
+    expenseDescription: "",
     expenseCategory: "",
     id: null,
     date: Date.now(),
@@ -376,6 +408,7 @@ const handleExpense = () => {
 const resetExpense = () => {
   Object.assign(expense, {
     expenseName: "",
+    expenseDescription: "",
     expenseAmount: "",
     expenseCategory: "",
     id: null,
@@ -387,7 +420,13 @@ const resetExpense = () => {
 
 const otherCategory = () => {
   expense.expenseCategory = "";
-  addCategory.value = true;
+  addCategory.value = !addCategory.value;
+};
+
+const showExpense = (id) => {
+  dialogShowExpense.value = true;
+  expenseToShow.value = expenses.value.filter((exp) => exp.id === id);
+  console.log(expenseToShow.value);
 };
 </script>
 
@@ -430,5 +469,9 @@ const otherCategory = () => {
   height: 60px;
   padding: 20px;
   border-radius: 5px;
+}
+.close-container {
+  position: absolute;
+  left: 150px;
 }
 </style>
