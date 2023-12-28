@@ -67,7 +67,7 @@
           @reset-budget="resetBudget"
           :budget="budget"
           :available="available"
-          :totalExpense="totalExpense"
+          :spent="spent"
         />
       </Transition>
       <Transition
@@ -329,7 +329,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, watch } from "vue";
 import Budget from "./components/Budget.vue";
 import ControlBudget from "./components/ControlBudget.vue";
 import { useToast } from "vue-toast-notification";
@@ -346,6 +346,7 @@ import { defineElement } from "@lordicon/element";
 defineElement(lottie.loadAnimation);
 const budget = ref("");
 const available = ref(0);
+const spent = ref(0);
 const budgetDefined = ref(false);
 const modal = ref(false);
 const addCategory = ref(false);
@@ -360,11 +361,7 @@ const snackbar = reactive({
   show: false,
   text: "",
 });
-const totalExpense = computed(() => {
-  return expenses.value
-    .filter((e) => e.active === true)
-    .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
-});
+
 const expense = reactive({
   active: false,
   expenseName: "",
@@ -385,6 +382,18 @@ const categories = [
   { value: "🏥 health", label: "🏥 Health" },
   { value: "👾 subscriptions", label: "👾 Subscriptions" },
 ];
+watch(
+  expenses,
+  () => {
+    const totalExpense = expenses.value
+      .filter((e) => e.active === true)
+      .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
+    spent.value = totalExpense;
+  },
+  {
+    deep: true,
+  }
+);
 
 const defineBudget = () => {
   budgetDefined.value = true;

@@ -39,6 +39,7 @@
               :value="expenseDescription"
               @input="$emit('update:expenseDescription', $event.target.value)"
               id="expenseDescription"
+              placeholder="Describe your expense"
               type="number"
               min="0"
               class="input-container w-100 font-weight-bold"
