@@ -85,7 +85,7 @@
               leave-active-class="animate__animated animate__backOutLeft"
             >
               <h1
-                v-if="expenses.length <= 0"
+                v-if="expenses.filter((e) => e.active === true).length <= 0"
                 class="text-black text-h6 font-weight-medium"
               >
                 There are not
@@ -329,7 +329,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import Budget from "./components/Budget.vue";
 import ControlBudget from "./components/ControlBudget.vue";
 import { useToast } from "vue-toast-notification";
@@ -353,16 +353,17 @@ const dialogShowExpense = ref(false);
 const expenseSelected = ref({});
 const dialogDeleteExpense = ref(false);
 const dialog3 = ref(false);
+const expenses = ref([]);
+const expensesActives = ref([]);
 const newCategory = ref("");
 const snackbar = reactive({
   show: false,
   text: "",
 });
 const totalExpense = computed(() => {
-  return expenses.value.reduce(
-    (total, exp) => total + parseFloat(exp.expenseAmount),
-    0
-  );
+  return expenses.value
+    .filter((e) => e.active === true)
+    .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
 });
 const expense = reactive({
   active: false,
@@ -373,7 +374,6 @@ const expense = reactive({
   id: null,
   date: Date.now(),
 });
-const expenses = ref([]);
 
 const categories = [
   { value: "", label: "-- Select --" },
