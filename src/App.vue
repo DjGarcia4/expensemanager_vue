@@ -197,25 +197,25 @@
             </v-row>
 
             <v-card-title class="text-center font-weight-black text-h3">
-              {{ expenseToShow[0].expenseName }}</v-card-title
+              {{ expenseSelected[0].expenseName }}</v-card-title
             >
             <h1
               class="mt-5 text-grey-darken-2 text-center font-weight-medium text-h5 text-uppercase"
             >
-              {{ expenseToShow[0].expenseCategory }}
+              {{ expenseSelected[0].expenseCategory }}
             </h1>
             <div class="my-7">
               <h1
                 class="text-red-accent-3 text-center text-h3 font-weight-bold"
               >
-                {{ formatMoney(expenseToShow[0].expenseAmount) }}
+                {{ formatMoney(expenseSelected[0].expenseAmount) }}
               </h1>
             </div>
             <v-card-text class="text-h6"
-              >{{ expenseToShow[0].expenseDescription }}
+              >{{ expenseSelected[0].expenseDescription }}
             </v-card-text>
             <p class="text-right font-weight-bold">
-              {{ formatFecha(expenseToShow[0].date) }}
+              {{ formatFecha(expenseSelected[0].date) }}
             </p>
             <v-card-actions>
               <v-row>
@@ -256,25 +256,60 @@
           </v-card>
         </v-dialog>
 
-        <!-- <v-dialog v-model="dialogDeleteExpense" width="auto">
-          <v-card>
-            <v-card-title> Dialog 2 </v-card-title>
+        <v-dialog v-model="dialogDeleteExpense" width="auto">
+          <v-card
+            class="rounded-xl pa-6"
+            min-width="300"
+            max-width="400"
+            height="500"
+          >
+            <v-card-title class="text-center font-weight-black text-h4">
+              Delete Expense
+            </v-card-title>
+            <div class="w-100 d-flex justify-center">
+              <lord-icon
+                src="https://cdn.lordicon.com/krenhavm.json"
+                trigger="loop"
+                delay="1000"
+                stroke="bold"
+                state="hover-oscillate"
+                colors="primary:#ff1744,secondary:#ff1744"
+                style="width: 170px; height: 170px"
+              >
+              </lord-icon>
+            </div>
             <v-card-text>
-              <v-btn color="primary" @click="dialog3 = !dialog3">
-                Delete Expense
-              </v-btn>
+              <p>
+                Are you sure you want to delete this expense? All of your data
+                will be permanently removed. This action cannot be undone.
+              </p>
             </v-card-text>
             <v-card-actions>
-              <v-btn
-                color="primary"
-                variant="text"
-                @click="dialogDeleteExpense = false"
-              >
-                Close
-              </v-btn>
+              <v-row>
+                <v-col cols="12" class="pa-1">
+                  <v-btn
+                    @click="deleteExpense"
+                    block
+                    class="bg-red-accent-3 text-white font-weight-bold text-h6 text-capitalize"
+                    height="40"
+                    >Delete Expense</v-btn
+                  >
+                </v-col>
+                <v-col cols="12" class="pa-1">
+                  <v-btn
+                    @click="dialogDeleteExpense = false"
+                    block
+                    class="bg-orange-accent-3 text-white font-weight-bold text-h6 text-capitalize"
+                    height="40"
+                    type="submit"
+                  >
+                    Cancel</v-btn
+                  >
+                </v-col>
+              </v-row>
             </v-card-actions>
           </v-card>
-        </v-dialog> -->
+        </v-dialog>
 
         <!-- <v-dialog v-model="dialog3" width="auto">
           <v-card>
@@ -315,7 +350,7 @@ const budgetDefined = ref(false);
 const modal = ref(false);
 const addCategory = ref(false);
 const dialogShowExpense = ref(false);
-const expenseToShow = ref({});
+const expenseSelected = ref({});
 const dialogDeleteExpense = ref(false);
 const dialog3 = ref(false);
 const newCategory = ref("");
@@ -330,6 +365,7 @@ const totalExpense = computed(() => {
   );
 });
 const expense = reactive({
+  active: false,
   expenseName: "",
   expenseDescription: "",
   expenseAmount: "",
@@ -389,12 +425,14 @@ const handleExpense = () => {
     return;
   }
   expense.id = uid();
+  expense.active = true;
   expenses.value.unshift({ ...expense });
   modal.value = false;
   $toast.success("Expense added succcessfully! ", {
     position: "top",
   });
   Object.assign(expense, {
+    active: false,
     expenseName: "",
     expenseAmount: "",
     expenseDescription: "",
@@ -407,6 +445,7 @@ const handleExpense = () => {
 
 const resetExpense = () => {
   Object.assign(expense, {
+    active: false,
     expenseName: "",
     expenseDescription: "",
     expenseAmount: "",
@@ -425,8 +464,24 @@ const otherCategory = () => {
 
 const showExpense = (id) => {
   dialogShowExpense.value = true;
-  expenseToShow.value = expenses.value.filter((exp) => exp.id === id);
-  console.log(expenseToShow.value);
+  expenseSelected.value = expenses.value.filter((exp) => exp.id === id);
+  console.log(expenseSelected.value);
+};
+
+const deleteExpense = () => {
+  const index = expenses.value.findIndex(
+    (e) => e.id === expenseSelected.value[0].id
+  );
+  expenses.value[index].active = false;
+  setTimeout(() => {
+    expenses.value = expenses.value.filter((e) => e.id !== expenseSelected.id);
+    expenseSelected.value = {};
+  }, 100);
+  dialogDeleteExpense.value = false;
+  dialogShowExpense.value = false;
+  $toast.success("Expense deleted succcessfully! ", {
+    position: "top",
+  });
 };
 </script>
 
