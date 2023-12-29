@@ -5,7 +5,7 @@
     leave-active-class="animate__animated animate__backOutRight"
   >
     <v-btn
-      class="rounded-lg text-left pa-5 pa-md-10 mt-5 elevation-7 h-100 w-100 d-block text-capitalize"
+      class="rounded-xl text-left pa-5 pa-md-10 mt-5 elevation-7 h-100 w-100 d-block text-capitalize"
       @click="emit('show-expense', exp.id)"
       v-if="exp.active"
     >

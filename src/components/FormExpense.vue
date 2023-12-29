@@ -123,7 +123,7 @@
             class="bg-orange-accent-3 text-white font-weight-bold text-h6 text-capitalize"
             height="40"
             type="submit"
-            >Add Expense</v-btn
+            >{{ id !== null ? "Edit" : "Add" }} Expense</v-btn
           >
         </v-col>
         <v-col cols="6" md="6" class="pa-1">
@@ -142,6 +142,9 @@
 
 <script setup>
 const props = defineProps({
+  id: {
+    require: true,
+  },
   categories: {
     require: true,
   },

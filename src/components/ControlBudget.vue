@@ -15,17 +15,17 @@
         class="d-flex flex-column align-center justify-center"
       >
         <div class="my-8 text-left text-h6 text-md-h5 w-100">
-          <p class="text-grey-darken-1 mt-3">
+          <p class="text-grey-darken-1 mt-1">
             <span class="font-weight-bold text-orange-accent-3">Budget:</span>
             {{ formatMoney(budget) }}
           </p>
-          <p class="text-grey-darken-1 mt-3">
+          <p class="text-grey-darken-1 mt-1">
             <span class="font-weight-bold text-orange-accent-3"
               >Available:</span
             >
-            {{ formatMoney(available - spent) }}
+            {{ formatMoney(available) }}
           </p>
-          <p class="text-grey-darken-1 mt-3">
+          <p class="text-grey-darken-1 mt-1">
             <span class="font-weight-bold text-orange-accent-3">Spent:</span>
             {{ formatMoney(spent) }}
           </p>

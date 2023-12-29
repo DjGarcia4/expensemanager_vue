@@ -11,7 +11,10 @@
           {{ snackbar.text }}
         </v-snackbar>
         <v-card class="rounded-xl pa-8" max-width="400">
-          <h1 class="text-center">
+          <h1 v-if="expense.id !== null" class="text-center">
+            Edit <span class="text-orange-accent-3">Expense</span>
+          </h1>
+          <h1 v-else class="text-center">
             Add <span class="text-orange-accent-3">Expense</span>
           </h1>
           <div class="d-flex justify-center">
@@ -29,6 +32,7 @@
               <FormExpense
                 :categories="categories"
                 :addCategory="addCategory"
+                :id="expense.id"
                 v-model:expenseName="expense.expenseName"
                 v-model:expenseDescription="expense.expenseDescription"
                 v-model:expenseAmount="expense.expenseAmount"
@@ -137,7 +141,7 @@
                 >Change Budget</v-btn
               >
             </v-list-item>
-            <v-list-item>
+            <v-list-item v-if="expenses.length > 0">
               <v-btn
                 @click="resetExpenses"
                 block
@@ -196,7 +200,9 @@
               </v-col>
             </v-row>
 
-            <v-card-title class="text-center font-weight-black text-h3">
+            <v-card-title
+              class="text-center font-weight-black text-h4 text-md-h3"
+            >
               {{ expenseSelected[0].expenseName }}</v-card-title
             >
             <h1
@@ -221,6 +227,7 @@
               <v-row>
                 <v-col cols="6" md="6" class="pa-1">
                   <v-btn
+                    @click="editExpense"
                     block
                     class="bg-orange-accent-3 text-white font-weight-bold text-h6 text-capitalize"
                     height="40"
@@ -329,7 +336,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, onMounted } from "vue";
 import Budget from "./components/Budget.vue";
 import ControlBudget from "./components/ControlBudget.vue";
 import { useToast } from "vue-toast-notification";
@@ -383,12 +390,13 @@ const categories = [
   { value: "👾 subscriptions", label: "👾 Subscriptions" },
 ];
 watch(
-  expenses,
+  [expenses, budget],
   () => {
     const totalExpense = expenses.value
       .filter((e) => e.active === true)
       .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
     spent.value = totalExpense;
+    available.value = budget.value - totalExpense;
   },
   {
     deep: true,
@@ -396,8 +404,10 @@ watch(
 );
 
 const defineBudget = () => {
+  // if (budget.value.length === 0) {
+  //   available.value = budget.value;
+  // }
   budgetDefined.value = true;
-  available.value = budget.value;
 };
 
 const resetBudget = () => {
@@ -415,6 +425,7 @@ const resetApp = () => {
 
 const addExpense = () => {
   modal.value = !modal.value;
+  resetExpense();
 };
 const handleExpense = () => {
   if (newCategory.value !== "") {
@@ -424,22 +435,43 @@ const handleExpense = () => {
       value: newCategory.value,
     });
   }
-
-  if (Object.values(expense).includes("")) {
-    snackbar.show = true;
-    snackbar.text = "Please fill all fields.";
-    setTimeout(() => {
-      snackbar.show = false;
-    }, 3000);
-    return;
+  if (expense.id !== null) {
+    //BUscamos el index del objeto a modificar
+    let index = expenses.value.findIndex((item) => item.id == expense.id);
+    //Modificamos el elemento en la posicion encontrada
+    expenses.value[index] = { ...expense };
+    modal.value = false;
+    dialogShowExpense.value = false;
+    // expenseSelected.value = {};
+    $toast.success("Expense modified succcessfully! ", {
+      position: "top",
+    });
+  } else {
+    if (Object.values(expense).includes("")) {
+      snackbar.show = true;
+      snackbar.text = "Please fill all fields.";
+      setTimeout(() => {
+        snackbar.show = false;
+      }, 3000);
+      return;
+    }
+    if (parseInt(expense.expenseAmount) > available.value) {
+      snackbar.show = true;
+      snackbar.text = "There is not enought available money.";
+      setTimeout(() => {
+        snackbar.show = false;
+      }, 3000);
+      return;
+    }
+    expense.id = uid();
+    expense.active = true;
+    expenses.value.unshift({ ...expense });
+    modal.value = false;
+    $toast.success("Expense added succcessfully! ", {
+      position: "top",
+    });
   }
-  expense.id = uid();
-  expense.active = true;
-  expenses.value.unshift({ ...expense });
-  modal.value = false;
-  $toast.success("Expense added succcessfully! ", {
-    position: "top",
-  });
+
   Object.assign(expense, {
     active: false,
     expenseName: "",
@@ -474,7 +506,6 @@ const otherCategory = () => {
 const showExpense = (id) => {
   dialogShowExpense.value = true;
   expenseSelected.value = expenses.value.filter((exp) => exp.id === id);
-  console.log(expenseSelected.value);
 };
 
 const deleteExpense = () => {
@@ -491,6 +522,18 @@ const deleteExpense = () => {
   $toast.success("Expense deleted succcessfully! ", {
     position: "top",
   });
+};
+
+const editExpense = () => {
+  modal.value = true;
+  // set the values of the form to the selected expense
+  expense.id = expenseSelected.value[0].id;
+  expense.date = expenseSelected.value[0].date;
+  expense.expenseName = expenseSelected.value[0].expenseName;
+  expense.active = expenseSelected.value[0].active;
+  expense.expenseDescription = expenseSelected.value[0].expenseDescription;
+  expense.expenseAmount = expenseSelected.value[0].expenseAmount;
+  expense.expenseCategory = expenseSelected.value[0].expenseCategory;
 };
 </script>
 
