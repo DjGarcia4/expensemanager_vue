@@ -11,10 +11,13 @@
           {{ snackbar.text }}
         </v-snackbar>
         <v-card class="rounded-xl pa-8" max-width="400">
-          <h1 v-if="expense.id !== null" class="text-center">
+          <h1
+            v-if="expense.id !== null"
+            class="text-center text-h5 font-weight-bold"
+          >
             Edit <span class="text-orange-accent-3">Expense</span>
           </h1>
-          <h1 v-else class="text-center">
+          <h1 v-else class="text-center text-h5 font-weight-bold">
             Add <span class="text-orange-accent-3">Expense</span>
           </h1>
           <div class="d-flex justify-center">
@@ -23,7 +26,7 @@
               trigger="loop"
               delay="1000"
               colors="primary:#FF9100"
-              style="width: 150px; height: 150px"
+              style="width: 100px; height: 100px"
             >
             </lord-icon>
           </div>
@@ -416,14 +419,30 @@ const resetBudget = () => {
 };
 const resetExpenses = () => {
   expenses.value = [];
+  $toast.success("All expenses were eliminated! ", {
+    position: "top",
+  });
 };
 const resetApp = () => {
   budget.value = 0;
   budgetDefined.value = false;
   expenses.value = [];
+  expenseSelected.value = {};
+  $toast.success("All expenses were eliminated! ", {
+    position: "top",
+  });
 };
 
 const addExpense = () => {
+  if (available.value === 0) {
+    $toast.error(
+      "There is no more money available! Add more money or eliminate some expenses! ",
+      {
+        position: "top",
+      }
+    );
+    return;
+  }
   modal.value = !modal.value;
   resetExpense();
 };
@@ -457,7 +476,7 @@ const handleExpense = () => {
     }
     if (parseInt(expense.expenseAmount) > available.value) {
       snackbar.show = true;
-      snackbar.text = "There is not enought available money.";
+      snackbar.text = "There is not enough money available.";
       setTimeout(() => {
         snackbar.show = false;
       }, 3000);
