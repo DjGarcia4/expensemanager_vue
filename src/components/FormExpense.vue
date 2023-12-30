@@ -122,6 +122,7 @@
                       >
                       <v-color-picker
                         v-model="color"
+                        :value="colorCategory"
                         class="w-100"
                         show-swatches
                         hide-canvas

@@ -477,8 +477,21 @@ const handleExpense = () => {
       }, 3000);
       return;
     }
+    // VAlidamos de que la categoria no esta duplicada
+    const categoryExist = categories.some(
+      (item) => item.value == expense.expenseCategory
+    );
+    if (categoryExist) {
+      snackbar.show = true;
+      snackbar.text = "Category already exists.";
+      setTimeout(() => {
+        snackbar.show = false;
+      }, 3000);
+      return;
+    }
+
     categories.push({
-      name: expense.expenseCategory,
+      label: expense.expenseCategory,
       color: colorCategory.value,
       value: expense.expenseCategory,
     });
@@ -574,6 +587,7 @@ const deleteExpense = () => {
 
 const editExpense = () => {
   modal.value = true;
+  // addCategory.value = true;
   // set the values of the form to the selected expense
   expense.id = expenseSelected.value[0].id;
   expense.date = expenseSelected.value[0].date;
@@ -586,6 +600,7 @@ const editExpense = () => {
 onMounted(() => {
   if (budget.value) {
     budgetDefined.value = true;
+    available.value = budget.value;
   }
 });
 </script>
