@@ -46,11 +46,37 @@
             />
           </div>
           <div class="mt-3">
-            <label for="expenseCategorie" class="font-weight-bold text-h6"
-              >Category
-            </label>
-            <v-row>
-              <v-col cols="9" class="d-flex">
+            <v-row class="d-flex justify-center">
+              <v-col cols="9" class="pb-0 d-flex align-center">
+                <label for="expenseCategorie" class="font-weight-bold text-h6"
+                  >Category
+                </label>
+              </v-col>
+              <v-col cols="3" class="pb-0">
+                <v-btn
+                  @click="emit('other-category')"
+                  class="bg-transparent elevation-0 pa-2 h-100"
+                >
+                  <lord-icon
+                    v-if="!props.addCategory"
+                    src="https://cdn.lordicon.com/zrkkrrpl.json"
+                    trigger="click"
+                    stroke="bold"
+                    colors="primary:#e88c30,secondary:#e88c30"
+                    style="width: 25px; height: 25px"
+                  >
+                  </lord-icon>
+                  <lord-icon
+                    v-else
+                    src="https://cdn.lordicon.com/dykoqszm.json"
+                    trigger="click"
+                    colors="primary:#e88c30,secondary:#e88c30"
+                    style="width: 25px; height: 25px"
+                  >
+                  </lord-icon
+                ></v-btn>
+              </v-col>
+              <v-col cols="12" class="">
                 <Transition
                   name="custom-classes"
                   enter-active-class="animate__animated animate__backInLeft"
@@ -78,41 +104,32 @@
                   enter-active-class="animate__animated animate__backInRight"
                   leave-active-class="animate__animated animate__backOutRight"
                 >
-                  <input
-                    v-if="props.addCategory"
-                    :value="newCategory"
-                    @input="$emit('update:newCategory', $event.target.value)"
-                    id="newCategory"
-                    type="text"
-                    placeholder="New Category"
-                    min="0"
-                    class="input-container w-100 font-weight-bold"
-                  />
+                  <div v-if="props.addCategory">
+                    <input
+                      :value="expenseCategory"
+                      @input="
+                        $emit('update:expenseCategory', $event.target.value)
+                      "
+                      id="newCategory"
+                      type="text"
+                      placeholder="New Category"
+                      min="0"
+                      class="input-container w-100 font-weight-bold"
+                    />
+                    <div class="mt-3">
+                      <label for="expenseColor" class="font-weight-bold text-h6"
+                        >Category Color</label
+                      >
+                      <v-color-picker
+                        v-model="color"
+                        class="w-100"
+                        show-swatches
+                        hide-canvas
+                        hide-inputs
+                      ></v-color-picker>
+                    </div>
+                  </div>
                 </Transition>
-              </v-col>
-              <v-col cols="3">
-                <v-btn
-                  @click="emit('other-category')"
-                  class="bg-transparent elevation-0 pa-2 h-100"
-                >
-                  <lord-icon
-                    v-if="!props.addCategory"
-                    src="https://cdn.lordicon.com/zrkkrrpl.json"
-                    trigger="click"
-                    stroke="bold"
-                    colors="primary:#e88c30,secondary:#e88c30"
-                    style="width: 50px; height: 50px"
-                  >
-                  </lord-icon>
-                  <lord-icon
-                    v-else
-                    src="https://cdn.lordicon.com/dykoqszm.json"
-                    trigger="click"
-                    colors="primary:#e88c30,secondary:#e88c30"
-                    style="width: 50px; height: 50px"
-                  >
-                  </lord-icon
-                ></v-btn>
               </v-col>
             </v-row>
           </div>
@@ -141,6 +158,11 @@
 </template>
 
 <script setup>
+import { watch, ref } from "vue";
+const color = ref("");
+watch(color, () => {
+  emit("update:colorCategory", color.value);
+});
 const props = defineProps({
   id: {
     require: true,
@@ -166,7 +188,11 @@ const props = defineProps({
     type: String,
     require: true,
   },
-  newCategory: {
+  nameCategory: {
+    type: String,
+    require: true,
+  },
+  colorCategory: {
     type: String,
     require: true,
   },
@@ -177,7 +203,7 @@ const emit = defineEmits([
   "update:expenseDescription",
   "update:expenseAmount",
   "update:expenseCategory",
-  "update:newCategory",
+  "update:colorCategory",
   "handle-expense",
   "other-category",
   "add-expense",

@@ -7,6 +7,10 @@ import ToastPlugin from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-bootstrap.css";
 // Vuetify
 import "vuetify/styles";
+
+import "@cyhnkckali/vue3-color-picker/dist/style.css";
+
+import "vue-color/dist/vue-color.min.js";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";

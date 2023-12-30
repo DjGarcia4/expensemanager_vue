@@ -36,6 +36,7 @@
                 :categories="categories"
                 :addCategory="addCategory"
                 :id="expense.id"
+                v-model:colorCategory="colorCategory"
                 v-model:expenseName="expense.expenseName"
                 v-model:expenseDescription="expense.expenseDescription"
                 v-model:expenseAmount="expense.expenseAmount"
@@ -108,6 +109,7 @@
                 <Expense
                   v-for="exp in expenses"
                   :exp="exp"
+                  :categories="categories"
                   @show-expense="showExpense"
                 />
               </div>
@@ -364,9 +366,19 @@ const dialogShowExpense = ref(false);
 const expenseSelected = ref({});
 const dialogDeleteExpense = ref(false);
 const dialog3 = ref(false);
-const expenses = ref([]);
+const expenses = ref([
+  // {
+  //   active: true,
+  //   expenseName: "Cine",
+  //   expenseDescription: "Ida al cine",
+  //   expenseAmount: "10",
+  //   expenseCategory: "😝 leisure",
+  //   id: null,
+  //   date: Date.now(),
+  // },
+]);
 const expensesActives = ref([]);
-const newCategory = ref("");
+const colorCategory = ref("");
 const snackbar = reactive({
   show: false,
   text: "",
@@ -383,14 +395,14 @@ const expense = reactive({
 });
 
 const categories = [
-  { value: "", label: "-- Select --" },
-  { value: "💰 savings", label: "💰 Savings" },
-  { value: "🍽️ food", label: "🍽️ Food" },
-  { value: "🏡 home", label: "🏡 Home" },
-  { value: "💵 expenses", label: "💵 Various Expenses" },
-  { value: "😝 leisure", label: "😝 Leisure" },
-  { value: "🏥 health", label: "🏥 Health" },
-  { value: "👾 subscriptions", label: "👾 Subscriptions" },
+  { value: "", label: "-- Select --", color: "#000000" }, // Default color (black)
+  { value: "💰 savings", label: "💰 Savings", color: "#4CAF50" }, // Green
+  { value: "🍽️ food", label: "🍽️ Food", color: "#FFC107" }, // Amber
+  { value: "🏡 home", label: "🏡 Home", color: "#795548" }, // Brown
+  { value: "💵 expenses", label: "💵 Various Expenses", color: "#FF5733" }, // Orangish
+  { value: "😝 leisure", label: "😝 Leisure", color: "#2196F3" }, // Blue
+  { value: "🏥 health", label: "🏥 Health", color: "#9C27B0" }, // Purple
+  { value: "👾 subscriptions", label: "👾 Subscriptions", color: "#FF4081" }, // Pink
 ];
 watch(
   [expenses, budget],
@@ -412,6 +424,15 @@ const defineBudget = () => {
   // }
   budgetDefined.value = true;
 };
+// watch(
+//   newCategory,
+//   () => {
+//     expense.expenseCategory = newCategory.value;
+//   },
+//   {
+//     deep: true,
+//   }
+// );
 
 const resetBudget = () => {
   budget.value = 0;
@@ -447,11 +468,19 @@ const addExpense = () => {
   resetExpense();
 };
 const handleExpense = () => {
-  if (newCategory.value !== "") {
-    expense.expenseCategory = newCategory.value;
+  if (addCategory.value) {
+    if (!colorCategory.value) {
+      snackbar.show = true;
+      snackbar.text = "Please fill all fields.";
+      setTimeout(() => {
+        snackbar.show = false;
+      }, 3000);
+      return;
+    }
     categories.push({
-      label: newCategory.value,
-      value: newCategory.value,
+      name: expense.expenseCategory,
+      color: colorCategory.value,
+      value: expense.expenseCategory,
     });
   }
   if (expense.id !== null) {
@@ -486,6 +515,7 @@ const handleExpense = () => {
     expense.active = true;
     expenses.value.unshift({ ...expense });
     modal.value = false;
+    addCategory.value = false;
     $toast.success("Expense added succcessfully! ", {
       position: "top",
     });
@@ -514,7 +544,6 @@ const resetExpense = () => {
     date: Date.now(),
   });
   addCategory.value = false;
-  newCategory.value = "";
 };
 
 const otherCategory = () => {
@@ -554,6 +583,11 @@ const editExpense = () => {
   expense.expenseAmount = expenseSelected.value[0].expenseAmount;
   expense.expenseCategory = expenseSelected.value[0].expenseCategory;
 };
+onMounted(() => {
+  if (budget.value) {
+    budgetDefined.value = true;
+  }
+});
 </script>
 
 <style>
