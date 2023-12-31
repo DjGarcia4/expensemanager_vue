@@ -412,8 +412,6 @@ watch(
 
 const defineBudget = () => {
   budgetDefined.value = true;
-  // Lo gaurdamos en el localstorage
-  localStorage.setItem("budget", JSON.stringify(budget.value));
 };
 
 const resetBudget = () => {
@@ -427,10 +425,11 @@ const resetExpenses = () => {
   });
 };
 const resetApp = () => {
-  budget.value = 0;
+  budget.value = "";
   budgetDefined.value = false;
   expenses.value = [];
   expenseSelected.value = {};
+  categories.value = [];
   $toast.success("All expenses were eliminated! ", {
     position: "top",
   });
@@ -583,6 +582,7 @@ const editExpense = () => {
   expense.expenseCategory = expenseSelected.value[0].expenseCategory;
 };
 const saveLocalStorage = () => {
+  localStorage.setItem("budget", JSON.stringify(budget.value));
   localStorage.setItem("expenses", JSON.stringify(expenses.value));
   localStorage.setItem("categories", JSON.stringify(categories.value));
 };
