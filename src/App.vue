@@ -377,7 +377,7 @@ const expenses = ref([
   //   date: Date.now(),
   // },
 ]);
-const expensesActives = ref([]);
+
 const colorCategory = ref("");
 const snackbar = reactive({
   show: false,
@@ -394,24 +394,16 @@ const expense = reactive({
   date: Date.now(),
 });
 
-const categories = [
-  { value: "", label: "-- Select --", color: "#000000" }, // Default color (black)
-  { value: "💰 savings", label: "💰 Savings", color: "#4CAF50" }, // Green
-  { value: "🍽️ food", label: "🍽️ Food", color: "#FFC107" }, // Amber
-  { value: "🏡 home", label: "🏡 Home", color: "#795548" }, // Brown
-  { value: "💵 expenses", label: "💵 Various Expenses", color: "#FF5733" }, // Orangish
-  { value: "😝 leisure", label: "😝 Leisure", color: "#2196F3" }, // Blue
-  { value: "🏥 health", label: "🏥 Health", color: "#9C27B0" }, // Purple
-  { value: "👾 subscriptions", label: "👾 Subscriptions", color: "#FF4081" }, // Pink
-];
+const categories = ref([]);
 watch(
-  [expenses, budget],
+  [expenses, budget, categories],
   () => {
     const totalExpense = expenses.value
       .filter((e) => e.active === true)
       .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
     spent.value = totalExpense;
     available.value = budget.value - totalExpense;
+    saveLocalStorage();
   },
   {
     deep: true,
@@ -419,20 +411,10 @@ watch(
 );
 
 const defineBudget = () => {
-  // if (budget.value.length === 0) {
-  //   available.value = budget.value;
-  // }
   budgetDefined.value = true;
+  // Lo gaurdamos en el localstorage
+  localStorage.setItem("budget", JSON.stringify(budget.value));
 };
-// watch(
-//   newCategory,
-//   () => {
-//     expense.expenseCategory = newCategory.value;
-//   },
-//   {
-//     deep: true,
-//   }
-// );
 
 const resetBudget = () => {
   budget.value = 0;
@@ -468,7 +450,7 @@ const addExpense = () => {
   resetExpense();
 };
 const handleExpense = () => {
-  if (addCategory.value) {
+  if (addCategory.value || expense.expenseCategory) {
     if (!colorCategory.value) {
       snackbar.show = true;
       snackbar.text = "Please fill all fields.";
@@ -478,19 +460,21 @@ const handleExpense = () => {
       return;
     }
     // VAlidamos de que la categoria no esta duplicada
-    const categoryExist = categories.some(
-      (item) => item.value == expense.expenseCategory
-    );
-    if (categoryExist) {
-      snackbar.show = true;
-      snackbar.text = "Category already exists.";
-      setTimeout(() => {
-        snackbar.show = false;
-      }, 3000);
-      return;
+    if (categories.value.length > 0) {
+      const categoryExist = categories.value.some(
+        (item) => item.value == expense.expenseCategory
+      );
+      if (categoryExist) {
+        snackbar.show = true;
+        snackbar.text = "Category already exists.";
+        setTimeout(() => {
+          snackbar.show = false;
+        }, 3000);
+        return;
+      }
     }
 
-    categories.push({
+    categories.value.push({
       label: expense.expenseCategory,
       color: colorCategory.value,
       value: expense.expenseCategory,
@@ -529,6 +513,7 @@ const handleExpense = () => {
     expenses.value.unshift({ ...expense });
     modal.value = false;
     addCategory.value = false;
+
     $toast.success("Expense added succcessfully! ", {
       position: "top",
     });
@@ -597,10 +582,28 @@ const editExpense = () => {
   expense.expenseAmount = expenseSelected.value[0].expenseAmount;
   expense.expenseCategory = expenseSelected.value[0].expenseCategory;
 };
+const saveLocalStorage = () => {
+  localStorage.setItem("expenses", JSON.stringify(expenses.value));
+  localStorage.setItem("categories", JSON.stringify(categories.value));
+};
 onMounted(() => {
-  if (budget.value) {
+  const budgetStorage = localStorage.getItem("budget");
+  const expensesStorage = localStorage.getItem("expenses");
+  const categoriesStorage = localStorage.getItem("categories");
+
+  if (categoriesStorage) {
+    categories.value = JSON.parse(categoriesStorage);
+  }
+  if (budgetStorage) {
+    budget.value = JSON.parse(budgetStorage);
     budgetDefined.value = true;
     available.value = budget.value;
+  }
+  if (expensesStorage) {
+    expenses.value = JSON.parse(expensesStorage);
+  }
+  if (expenses.value.length <= 0) {
+    addCategory.value = true;
   }
 });
 </script>

@@ -47,18 +47,27 @@
           </div>
           <div class="mt-3">
             <v-row class="d-flex justify-center">
-              <v-col cols="9" class="pb-0 d-flex align-center">
+              <v-col
+                v-if="props.addCategory && categories.length <= 0"
+                cols="12"
+                class="pb-0 d-flex align-center"
+              >
+                <label for="expenseCategorie" class="font-weight-bold text-h6"
+                  >New Category
+                </label>
+              </v-col>
+              <v-col v-else cols="9" class="pb-0 d-flex align-center">
                 <label for="expenseCategorie" class="font-weight-bold text-h6"
                   >Category
                 </label>
               </v-col>
-              <v-col cols="3" class="pb-0">
+              <v-col cols="3" class="pb-0" v-if="categories.length > 0">
                 <v-btn
                   @click="emit('other-category')"
                   class="bg-transparent elevation-0 pa-2 h-100"
                 >
                   <lord-icon
-                    v-if="!props.addCategory"
+                    v-if="!props.addCategory && categories.length > 0"
                     src="https://cdn.lordicon.com/zrkkrrpl.json"
                     trigger="click"
                     stroke="bold"
@@ -83,13 +92,14 @@
                   leave-active-class="animate__animated animate__backOutLeft"
                 >
                   <select
-                    v-if="!props.addCategory"
+                    v-if="!props.addCategory && categories.length > 0"
                     class="input-container font-weight-bold"
                     :value="expenseCategory"
                     @input="
                       $emit('update:expenseCategory', $event.target.value)
                     "
                   >
+                    <option disabled value="">Select category...</option>
                     <option
                       v-for="category in props.categories"
                       :key="category.value"
@@ -104,7 +114,7 @@
                   enter-active-class="animate__animated animate__backInRight"
                   leave-active-class="animate__animated animate__backOutRight"
                 >
-                  <div v-if="props.addCategory">
+                  <div v-if="props.addCategory || !categories.length > 0">
                     <input
                       :value="expenseCategory"
                       @input="
@@ -112,7 +122,7 @@
                       "
                       id="newCategory"
                       type="text"
-                      placeholder="New Category"
+                      placeholder="Example: 😝 Leisure"
                       min="0"
                       class="input-container w-100 font-weight-bold"
                     />
