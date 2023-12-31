@@ -48,7 +48,7 @@
           <div class="mt-3">
             <v-row class="d-flex justify-center">
               <v-col
-                v-if="props.addCategory && categories.length <= 0"
+                v-if="categories.length <= 0"
                 cols="12"
                 class="pb-0 d-flex align-center"
               >

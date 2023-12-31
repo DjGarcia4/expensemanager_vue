@@ -450,7 +450,7 @@ const addExpense = () => {
   resetExpense();
 };
 const handleExpense = () => {
-  if (addCategory.value || expense.expenseCategory) {
+  if (addCategory.value) {
     if (!colorCategory.value) {
       snackbar.show = true;
       snackbar.text = "Please fill all fields.";
@@ -602,7 +602,7 @@ onMounted(() => {
   if (expensesStorage) {
     expenses.value = JSON.parse(expensesStorage);
   }
-  if (expenses.value.length <= 0) {
+  if (categories.value.length <= 0) {
     addCategory.value = true;
   }
 });
