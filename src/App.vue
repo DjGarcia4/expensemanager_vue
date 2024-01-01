@@ -80,6 +80,45 @@
       </Transition>
       <Transition
         name="custom-classes"
+        enter-active-class="animate__animated animate__backInRight"
+        leave-active-class="animate__animated animate__backOutRight"
+      >
+        <v-container
+          v-if="expenses.filter((e) => e.active === true).length > 0"
+          class=" "
+        >
+          <v-card class="rounded-xl pa-10 elevation-14">
+            <v-form>
+              <v-row>
+                <v-col cols="12" class="pt-0 text-left">
+                  <label for="expenseCategorie" class="font-weight-bold text-h6"
+                    >Filter for category
+                  </label>
+                </v-col>
+                <v-col cols="12" class="pa-0">
+                  <select
+                    class="input-container font-weight-bold"
+                    @input="filterExpense($event.target.value)"
+                  >
+                    <option disabled value="">Select category...</option>
+                    <option value="all" default>All</option>
+
+                    <option
+                      v-for="category in categories"
+                      :key="category.value"
+                      :value="category.value"
+                    >
+                      {{ category.label }}
+                    </option>
+                  </select>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card>
+        </v-container>
+      </Transition>
+      <Transition
+        name="custom-classes"
         enter-active-class="animate__animated animate__backInUp"
         leave-active-class="animate__animated animate__backOutDown"
       >
@@ -107,7 +146,9 @@
             >
               <div v-if="expenses.length > 0">
                 <Expense
-                  v-for="exp in expenses"
+                  v-for="exp in expensesToShow.length
+                    ? expensesToShow
+                    : expenses"
                   :exp="exp"
                   :categories="categories"
                   @show-expense="showExpense"
@@ -366,17 +407,9 @@ const dialogShowExpense = ref(false);
 const expenseSelected = ref({});
 const dialogDeleteExpense = ref(false);
 const dialog3 = ref(false);
-const expenses = ref([
-  // {
-  //   active: true,
-  //   expenseName: "Cine",
-  //   expenseDescription: "Ida al cine",
-  //   expenseAmount: "10",
-  //   expenseCategory: "😝 leisure",
-  //   id: null,
-  //   date: Date.now(),
-  // },
-]);
+const expenses = ref([]);
+const expensesToShow = ref([]);
+const categoriesFilter = ref([]);
 
 const colorCategory = ref("");
 const snackbar = reactive({
@@ -591,6 +624,21 @@ const saveLocalStorage = () => {
   localStorage.setItem("budget", JSON.stringify(budget.value));
   localStorage.setItem("expenses", JSON.stringify(expenses.value));
   localStorage.setItem("categories", JSON.stringify(categories.value));
+};
+
+const filterExpense = (categoryFilter) => {
+  if (categoryFilter === "all") {
+    expensesToShow.value = expenses.value.filter((e) => e.active === true);
+    return;
+  }
+  expensesToShow.value = expenses.value
+    .filter((exp) => exp.expenseCategory === categoryFilter)
+    .filter((e) => e.active === true);
+  if (expensesToShow.value.length <= 0) {
+    $toast.info("There are not expenses with this category! ", {
+      position: "top",
+    });
+  }
 };
 onMounted(() => {
   const budgetStorage = localStorage.getItem("budget");
