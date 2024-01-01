@@ -464,6 +464,7 @@ const resetApp = () => {
   expenses.value = [];
   expenseSelected.value = {};
   categories.value = [];
+  expensesToShow.value = [];
   $toast.success("All expenses were eliminated! ", {
     position: "top",
   });
@@ -489,7 +490,6 @@ const addExpense = () => {
 };
 const handleExpense = () => {
   if (addCategory.value) {
-    console.log("Si pasa");
     if (!colorCategory.value) {
       snackbar.show = true;
       snackbar.text = "Please fill all fields.";
