@@ -420,6 +420,7 @@ const resetBudget = () => {
 };
 const resetExpenses = () => {
   expenses.value = [];
+  addCategory.value = true;
   $toast.success("All expenses were eliminated! ", {
     position: "top",
   });
@@ -445,11 +446,17 @@ const addExpense = () => {
     );
     return;
   }
+  if (categories.value.length > 0) {
+    addCategory.value = false;
+  } else {
+    addCategory.value = true;
+  }
   modal.value = !modal.value;
   resetExpense();
 };
 const handleExpense = () => {
   if (addCategory.value) {
+    console.log("Si pasa");
     if (!colorCategory.value) {
       snackbar.show = true;
       snackbar.text = "Please fill all fields.";
@@ -540,7 +547,6 @@ const resetExpense = () => {
     id: null,
     date: Date.now(),
   });
-  addCategory.value = false;
 };
 
 const otherCategory = () => {
@@ -593,17 +599,24 @@ onMounted(() => {
 
   if (categoriesStorage) {
     categories.value = JSON.parse(categoriesStorage);
+    // if (Object.values(categories).includes("")) {
+    //   addCategory.value = true;
+    // }
+    if (!categories.value.length) {
+      addCategory.value = true;
+    }
   }
   if (budgetStorage) {
     budget.value = JSON.parse(budgetStorage);
-    budgetDefined.value = true;
-    available.value = budget.value;
+    if (budget.value >= 100) {
+      budgetDefined.value = true;
+      available.value = budget.value;
+    } else {
+      budgetDefined.value = false;
+    }
   }
   if (expensesStorage) {
     expenses.value = JSON.parse(expensesStorage);
-  }
-  if (categories.value.length <= 0) {
-    addCategory.value = true;
   }
 });
 </script>
