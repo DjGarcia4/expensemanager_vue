@@ -86,36 +86,34 @@
       >
         <v-container
           v-if="categoriesFilter.length >= 2 && budgetDefined"
-          class=" "
+          class="bg-white w-75 rounded-xl elevation-14 pa-8 mt-5"
         >
-          <v-card class="rounded-xl pa-10 elevation-14">
-            <v-form>
-              <v-row>
-                <v-col cols="12" class="pt-0 text-left">
-                  <label for="expenseCategorie" class="font-weight-bold text-h6"
-                    >Filter for category
-                  </label>
-                </v-col>
-                <v-col cols="12" class="pa-0">
-                  <select
-                    class="input-container font-weight-bold"
-                    @input="filterExpense($event.target.value)"
-                  >
-                    <option disabled value="">Select category...</option>
-                    <option value="all" default>All</option>
+          <v-form>
+            <v-row>
+              <v-col cols="12" class="pt-0 text-left">
+                <label for="expenseCategorie" class="font-weight-bold text-h6"
+                  >Filter for category
+                </label>
+              </v-col>
+              <v-col cols="12" class="pa-0">
+                <select
+                  class="input-container font-weight-bold"
+                  @input="filterExpense($event.target.value)"
+                >
+                  <option disabled value="">Select category...</option>
+                  <option value="all" default>All</option>
 
-                    <option
-                      v-for="category in categoriesFilter"
-                      :key="category"
-                      :value="category"
-                    >
-                      {{ category }}
-                    </option>
-                  </select>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-card>
+                  <option
+                    v-for="category in categoriesFilter"
+                    :key="category"
+                    :value="category"
+                  >
+                    {{ category }}
+                  </option>
+                </select>
+              </v-col>
+            </v-row>
+          </v-form>
         </v-container>
       </Transition>
       <Transition
@@ -390,12 +388,12 @@ import Expense from "./components/Expense.vue";
 import FormExpense from "./components/FormExpense.vue";
 import { uid } from "uid";
 import { formatMoney, formatFecha } from "./helpers";
-const $toast = useToast();
 
 import lottie from "lottie-web";
 import { defineElement } from "@lordicon/element";
 
 defineElement(lottie.loadAnimation);
+const $toast = useToast();
 const budget = ref("");
 const available = ref(0);
 const spent = ref(0);
@@ -415,7 +413,6 @@ const snackbar = reactive({
   text: "",
 });
 const colorCircle = ref("#e88c30");
-
 const expense = reactive({
   active: false,
   expenseName: "",
