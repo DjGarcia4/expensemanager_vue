@@ -19,17 +19,21 @@
       >
         <div class="my-8 text-left text-h6 text-md-h5 w-100">
           <p class="text-grey-darken-1 mt-1">
-            <span class="font-weight-bold text-orange-accent-3">Budget:</span>
+            <span class="font-weight-bold" :style="{ color: colorCircle }"
+              >Budget:</span
+            >
             {{ formatMoney(budget) }}
           </p>
           <p class="text-grey-darken-1 mt-1">
-            <span class="font-weight-bold text-orange-accent-3"
+            <span class="font-weight-bold" :style="{ color: colorCircle }"
               >Available:</span
             >
             {{ formatMoney(available) }}
           </p>
           <p class="text-grey-darken-1 mt-1">
-            <span class="font-weight-bold text-orange-accent-3">Spent:</span>
+            <span class="font-weight-bold" :style="{ color: colorCircle }"
+              >Spent:</span
+            >
             {{ formatMoney(spent) }}
           </p>
         </div>
