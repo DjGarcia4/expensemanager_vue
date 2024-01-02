@@ -84,7 +84,7 @@
         leave-active-class="animate__animated animate__backOutRight"
       >
         <v-container
-          v-if="expenses.filter((e) => e.active === true).length > 0"
+          v-if="categoriesFilter.length >= 2 && budgetDefined"
           class=" "
         >
           <v-card class="rounded-xl pa-10 elevation-14">
@@ -408,7 +408,6 @@ const dialog3 = ref(false);
 const expenses = ref([]);
 const expensesToShow = ref([]);
 const categoriesFilter = ref([]);
-const filterValue = ref("vanidades");
 const colorCategory = ref("");
 const snackbar = reactive({
   show: false,
@@ -443,6 +442,17 @@ watch(
 );
 
 const defineBudget = () => {
+  if (budget.value < spent.value) {
+    $toast.error(
+      `The budget must be greater than the amount spent: ${formatMoney(
+        spent.value
+      )}`,
+      {
+        position: "top",
+      }
+    );
+    return;
+  }
   budgetDefined.value = true;
 };
 
@@ -453,6 +463,7 @@ const resetBudget = () => {
 const resetExpenses = () => {
   expenses.value = [];
   addCategory.value = true;
+  categoriesFilter.value = [];
   $toast.success("All expenses were eliminated! ", {
     position: "top",
   });
@@ -464,6 +475,7 @@ const resetApp = () => {
   expenseSelected.value = {};
   categories.value = [];
   expensesToShow.value = [];
+  categoriesFilter.value = [];
   $toast.success("All expenses were eliminated! ", {
     position: "top",
   });
@@ -488,6 +500,14 @@ const addExpense = () => {
   resetExpense();
 };
 const handleExpense = () => {
+  if (Object.values(expense).includes("")) {
+    snackbar.show = true;
+    snackbar.text = "Please fill all fields.";
+    setTimeout(() => {
+      snackbar.show = false;
+    }, 3000);
+    return;
+  }
   if (addCategory.value) {
     if (!colorCategory.value) {
       snackbar.show = true;
@@ -530,14 +550,6 @@ const handleExpense = () => {
       position: "top",
     });
   } else {
-    if (Object.values(expense).includes("")) {
-      snackbar.show = true;
-      snackbar.text = "Please fill all fields.";
-      setTimeout(() => {
-        snackbar.show = false;
-      }, 3000);
-      return;
-    }
     if (parseInt(expense.expenseAmount) > available.value) {
       snackbar.show = true;
       snackbar.text = "There is not enough money available.";
@@ -643,6 +655,7 @@ const filterExpense = (categoryFilter) => {
   }
 };
 const getInfoToShow = () => {
+  categoriesFilter.value = [];
   expensesToShow.value = expenses.value.filter((e) => e.active === true);
   // Guardamos en categoriesFilter solo la categoria de cada objeto que hay en expensetoshow
   for (let i = 0; i < expensesToShow.value.length; i++) {
