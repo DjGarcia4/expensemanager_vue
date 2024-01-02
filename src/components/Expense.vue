@@ -10,7 +10,7 @@
       v-if="exp.active"
     >
       <p
-        class="text-uppercase text-white font-weight-regular text-h9 rounded-t-xl pa-2 text-h6 category-container w-100"
+        class="text-uppercase text-white font-weight-bold text-h9 rounded-t-xl py-2 px-8 text-h6 category-container w-100"
         :style="{ backgroundColor: getCategoryColor(exp.expenseCategory) }"
       >
         {{ exp.expenseCategory }}

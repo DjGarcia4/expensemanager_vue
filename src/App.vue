@@ -104,11 +104,11 @@
                     <option value="all" default>All</option>
 
                     <option
-                      v-for="category in categories"
-                      :key="category.value"
-                      :value="category.value"
+                      v-for="category in categoriesFilter"
+                      :key="category"
+                      :value="category"
                     >
-                      {{ category.label }}
+                      {{ category }}
                     </option>
                   </select>
                 </v-col>
@@ -146,9 +146,7 @@
             >
               <div v-if="expenses.length > 0">
                 <Expense
-                  v-for="exp in expensesToShow.length
-                    ? expensesToShow
-                    : expenses"
+                  v-for="exp in expensesToShow"
                   :exp="exp"
                   :categories="categories"
                   @show-expense="showExpense"
@@ -410,7 +408,7 @@ const dialog3 = ref(false);
 const expenses = ref([]);
 const expensesToShow = ref([]);
 const categoriesFilter = ref([]);
-
+const filterValue = ref("vanidades");
 const colorCategory = ref("");
 const snackbar = reactive({
   show: false,
@@ -436,6 +434,7 @@ watch(
       .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
     spent.value = totalExpense;
     available.value = budget.value - totalExpense;
+    getInfoToShow();
     saveLocalStorage();
   },
   {
@@ -557,6 +556,7 @@ const handleExpense = () => {
       position: "top",
     });
   }
+  getInfoToShow();
 
   Object.assign(expense, {
     active: false,
@@ -603,6 +603,7 @@ const deleteExpense = () => {
   }, 100);
   dialogDeleteExpense.value = false;
   dialogShowExpense.value = false;
+  getInfoToShow();
   $toast.success("Expense deleted succcessfully! ", {
     position: "top",
   });
@@ -635,9 +636,20 @@ const filterExpense = (categoryFilter) => {
     .filter((exp) => exp.expenseCategory === categoryFilter)
     .filter((e) => e.active === true);
   if (expensesToShow.value.length <= 0) {
+    expensesToShow.value = expenses.value.filter((e) => e.active === true);
     $toast.info("There are not expenses with this category! ", {
       position: "top",
     });
+  }
+};
+const getInfoToShow = () => {
+  expensesToShow.value = expenses.value.filter((e) => e.active === true);
+  // Guardamos en categoriesFilter solo la categoria de cada objeto que hay en expensetoshow
+  for (let i = 0; i < expensesToShow.value.length; i++) {
+    let cat = expensesToShow.value[i].expenseCategory;
+    if (!categoriesFilter.value.includes(cat)) {
+      categoriesFilter.value.push(cat);
+    }
   }
 };
 onMounted(() => {
@@ -665,6 +677,7 @@ onMounted(() => {
   }
   if (expensesStorage) {
     expenses.value = JSON.parse(expensesStorage);
+    getInfoToShow();
   }
 });
 </script>
