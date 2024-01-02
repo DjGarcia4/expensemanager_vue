@@ -76,6 +76,7 @@
           :budget="budget"
           :available="available"
           :spent="spent"
+          :colorCircle="colorCircle"
         />
       </Transition>
       <Transition
@@ -413,6 +414,7 @@ const snackbar = reactive({
   show: false,
   text: "",
 });
+const colorCircle = ref("#e88c30");
 
 const expense = reactive({
   active: false,
@@ -426,14 +428,13 @@ const expense = reactive({
 
 const categories = ref([]);
 watch(
-  [expenses, budget, categories],
+  [expenses, budget, categories, expensesToShow],
   () => {
-    const totalExpense = expenses.value
+    const totalExpense = expensesToShow.value
       .filter((e) => e.active === true)
       .reduce((total, exp) => total + parseFloat(exp.expenseAmount), 0);
     spent.value = totalExpense;
     available.value = budget.value - totalExpense;
-    getInfoToShow();
     saveLocalStorage();
   },
   {
@@ -640,13 +641,20 @@ const saveLocalStorage = () => {
 };
 
 const filterExpense = (categoryFilter) => {
+  getInfoToShow();
   if (categoryFilter === "all") {
     expensesToShow.value = expenses.value.filter((e) => e.active === true);
+    colorCircle.value = "#e88c30";
     return;
   }
   expensesToShow.value = expenses.value
     .filter((exp) => exp.expenseCategory === categoryFilter)
     .filter((e) => e.active === true);
+  let catColor = categories.value.filter(
+    (cat) => cat.value === categoryFilter
+  )[0];
+  colorCircle.value = catColor.color;
+
   if (expensesToShow.value.length <= 0) {
     expensesToShow.value = expenses.value.filter((e) => e.active === true);
     $toast.info("There are not expenses with this category! ", {

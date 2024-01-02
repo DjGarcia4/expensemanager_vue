@@ -3,10 +3,13 @@
     <v-row class="budgetcontrol-container">
       <v-col cols="12" md="6" class="d-flex align-center justify-center">
         <div class="percentage-container">
-          <p class="percentage text-h3 font-weight-black text-orange-accent-3">
+          <p
+            class="percentage text-h3 font-weight-black"
+            :style="{ color: colorCircle }"
+          >
             {{ percentage }}%
           </p>
-          <CircleProgress fill-color="#e88c30" :percent="percentage" />
+          <CircleProgress :fill-color="colorCircle" :percent="percentage" />
         </div>
       </v-col>
       <v-col
@@ -49,6 +52,10 @@ const props = defineProps({
   },
   spent: {
     require: true,
+  },
+  colorCircle: {
+    require: true,
+    type: String,
   },
 });
 const emit = defineEmits(["reset-budget"]);
